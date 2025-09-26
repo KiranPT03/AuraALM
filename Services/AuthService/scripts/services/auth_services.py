@@ -264,7 +264,7 @@ class AuthorizationService:
                 # For now, we'll allow it but log the event
             
             # Check if user's organization is set
-            if not user.organization or not user.organization.org_id:
+            if not user.org_id:
                 log.warning(f"User has no organization assigned: {email}")
                 error_detail = ErrorDetail(
                     code="NO_ORGANIZATION",
@@ -342,14 +342,14 @@ class AuthorizationService:
                 
                 # Extract org_id and business_units information
                 org_id = None
-                business_units = None
+                business_units = []
                 
-                if user.organization and user.organization.org_id:
-                    org_id = user.organization.org_id
+                if user.org_id:
+                    org_id = user.org_id
                 
-                # Extract business unit IDs from the list of BusinessUnit objects
+                # Extract business unit IDs from the list of strings
                 if user.business_units and len(user.business_units) > 0:
-                    business_units = [bu.bu_id for bu in user.business_units]
+                    business_units = user.business_units
                 
                 access_token = self.jwt_service.create_access_token(
                     user.user_id, 
@@ -359,7 +359,7 @@ class AuthorizationService:
                 )
                 refresh_token = self.jwt_service.create_refresh_token(
                     user.user_id, 
-                    org_id=org_id, 
+                    org_id=org_id,  
                     business_units=business_units
                 )
             except Exception as e:
@@ -622,19 +622,11 @@ class AuthorizationService:
                         "recovery_codes": user.security.recovery_codes if user.security and user.security.recovery_codes else []
                     },
                     
-                    # Organization section with defaults - always include structure
-                    "organization": {
-                        "org_id": user.organization.org_id if user.organization and user.organization.org_id else None,
-                        "name": user.organization.name if user.organization and user.organization.name else None
-                    },
-                    
-                    # Business units section with defaults - always include structure
-                    "business_units": [
-                        {
-                            "bu_id": bu.bu_id if bu.bu_id else None,
-                            "name": bu.name if bu.name else None
-                        } for bu in user.business_units
-                    ] if user.business_units else [],
+                    # Organization section - now a simple string
+                    "org_id": user.org_id if user.org_id else "",
+                
+                    # Business units section - now a list of strings
+                    "business_units": user.business_units if user.business_units else [],
                     
                     # Membership section with defaults
                     "membership": {
@@ -659,12 +651,12 @@ class AuthorizationService:
                     
                     # Metadata with defaults - always include structure
                     "metadata": {
-                        "registration_ip": user.metadata.registration_ip if user.metadata and hasattr(user.metadata, 'registration_ip') else None,
-                        "registration_source": user.metadata.registration_source if user.metadata and hasattr(user.metadata, 'registration_source') else "web",
-                        "last_activity": user.metadata.last_activity if user.metadata and hasattr(user.metadata, 'last_activity') else current_timestamp,
-                        "user_agent": user.metadata.user_agent if user.metadata and hasattr(user.metadata, 'user_agent') else None,
-                        "referral_source": user.metadata.referral_source if user.metadata and hasattr(user.metadata, 'referral_source') else None
-                    },
+                    "registration_ip": user.metadata.get("registration_ip") if user.metadata else None,
+                    "registration_source": user.metadata.get("registration_source") if user.metadata else "web",
+                    "last_activity": user.metadata.get("last_activity") if user.metadata else current_timestamp,
+                    "user_agent": user.metadata.get("user_agent") if user.metadata else None,
+                    "referral_source": user.metadata.get("referral_source") if user.metadata else None
+                },
                     
                     # Timestamps
                     "created_at": user.created_at if user.created_at else current_timestamp,

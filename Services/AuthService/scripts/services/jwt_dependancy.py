@@ -148,7 +148,7 @@ def require_org_and_roles(required_org_id: str, required_roles: List[str]):
         user_roles = current_user.get('roles', [])
         
         # Check organization
-        if not user_org_id or user_org_id != required_org_id:
+        if not user_org_id or user_org_id != required_org_id:   
             log.warning(f"Access denied for user {current_user.get('user_id')}: wrong organization")
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,

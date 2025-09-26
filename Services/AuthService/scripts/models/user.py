@@ -10,9 +10,6 @@ class Address(BaseModel):
     postal_code: Optional[str] = None
     country: Optional[str] = None
 
-class Organization(BaseModel): 
-    org_id: Optional[str] = None
-    name: Optional[str] = None
     
 class Profile(BaseModel): 
     """Represents a user's profile information.""" 
@@ -26,9 +23,6 @@ class Profile(BaseModel):
     locale: Optional[str] = 'en-US'  # User's language and region 
     timezone: Optional[str] = None
 
-class BusinessUnit(BaseModel):
-    bu_id: Optional[str] = None
-    name: Optional[str] = None
  
 class SocialProfile(BaseModel): 
     """Represents a user's social media links.""" 
@@ -72,8 +66,8 @@ class User(BaseModel):
     address: Optional[Address] = None 
     preferences: Optional[Preferences] = None
     security: Optional[Security] = None
-    organization: Optional[Organization] = None
-    business_units: Optional[List[BusinessUnit]] = None
+    org_id: Optional[str] = None
+    business_units: Optional[List[str]] = None
     membership: Optional[Membership] = None
      
     # Lists and dictionaries for dynamic data 

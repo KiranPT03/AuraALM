@@ -16,7 +16,7 @@ class JWTService:
         self.issuer = self.jwt_config['issuer']
         self.audience = self.jwt_config['audience']
     
-    def create_access_token(self, user_id: str, roles: List[str], org_id: Optional[str] = None, business_units: Optional[List[str]] = None, additional_claims: Optional[Dict[str, Any]] = None) -> str:
+    def create_access_token(self, user_id: str, roles: List[str], org_id: Optional[str] = None, business_units: Optional[List[str]] = [], additional_claims: Optional[Dict[str, Any]] = None) -> str:
         """
         Create JWT access token
         
@@ -44,10 +44,9 @@ class JWTService:
                 'aud': self.audience
             }
             
-            # Add org_id and business_units if provided
+            # Add organization and business_units if provided
             if org_id:
                 payload['org_id'] = org_id
-            if business_units:
                 payload['business_units'] = business_units  
             
             if additional_claims:
@@ -67,7 +66,7 @@ class JWTService:
         
         Args:
             user_id: User identifier
-            org_id: Organization identifier
+            org_id: Organization identifier   
             business_units: Business units identifiers
             additional_claims: Optional additional claims to include
             
@@ -87,7 +86,7 @@ class JWTService:
                 'aud': self.audience
             }
             
-            # Add org_id and business_units if provided
+            # Add organization and business_units if provided
             if org_id:
                 payload['org_id'] = org_id
             if business_units:
